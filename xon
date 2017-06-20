@@ -1,0 +1,95 @@
+aliases['batt'] = 'acpi'
+aliases['wifi'] = 'sudo wifi-menu'
+aliases['chrome'] = 'xdotool key Super_L+shift+c'
+aliases['namp'] = 'nmap'
+aliases['wget'] = 'aria2c'
+aliases['lock'] = 'dm-tool lock'
+
+aliases['cls'] = 'reset'
+
+aliases['clip'] = 'xclip -selection c'
+aliases['getclip'] = 'xclip -selection c -o'
+
+
+import os
+
+def _screenclip():
+	print ("click window to shoot")
+	os.system("scrot -s /tmp/screen.png")
+	os.system("xclip -selection clipboard -t image/png < /tmp/screen.png")
+
+def _brightness(args):
+	try:
+		f=open("/sys/class/backlight/intel_backlight/brightness","w")
+	except:
+		os.system("sudo chmod 777 /sys/class/backlight/intel_backlight/brightness")
+		f=open("/sys/class/backlight/intel_backlight/brightness","w")
+
+	f.write(args[0])
+	f.close()
+
+def _sound(args):
+#	os.system("amixer -c 0 set Master 100% unmute")
+	os.system("ponymix set-volume %s"%args[0])
+
+
+
+def _kvm_base():
+        os.system("sudo systemctl start libvirtd")
+        os.system("sudo virsh net-start default")
+
+def _kvm():
+	_kvm_base()
+	os.system("sudo virt-manager")
+
+def _kvm_win():
+	_kvm_base()
+	os.system("sudo virsh start win10")
+	os.system("sudo virt-manager -c qemu:///system --show-domain-console=win10")
+
+
+def _rootsh():
+	os.system("sudo xonsh --rc /home/alec/xon")
+
+def _ffmpeg_remix(args):
+	f=args[0]
+	os.system("ffmpeg -i %s -acodec copy -vcodec copy %s.mp4"%(f,f))
+
+def _serve(args):
+	port = 0
+	if len(args) == 0:
+		server = "127.0.0.1"
+		port = "8000"
+	elif len(args) == 1:
+		try:
+			int(args[0])
+			server = "127.0.0.1"
+			port = args[0]
+		except ValueError:
+			server = args[0]
+			port = "8000"
+	elif len(args) == 2:
+		server,port = args[0],args[1]
+	else:
+		print ("usage: [address] [port]")
+	if port:
+		os.system("python -m http.server --bind %s %s" %(server,port) )
+
+
+aliases['screenclip'] = _screenclip
+
+aliases['rootsh'] = _rootsh
+aliases['bright'] = _brightness
+aliases['vol'] = _sound
+aliases['kvm'] = _kvm
+aliases['kvm-win'] = _kvm_win
+aliases['serve'] = _serve
+
+
+aliases['ffmpeg-remix-ts']=_ffmpeg_remix
+
+#print ("UserID:",os.getuid())
+
+if os.getuid() == 0:
+	from scapy.all import *
+

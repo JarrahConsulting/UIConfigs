@@ -4,6 +4,7 @@ aliases['chrome'] = 'xdotool key Super_L+shift+c'
 aliases['namp'] = 'nmap'
 aliases['wget'] = 'aria2c'
 aliases['lock'] = 'dm-tool lock'
+aliases['listenings'] = 'sudo netstat -tnlp'
 
 aliases['cls'] = 'reset'
 
@@ -29,8 +30,9 @@ def _brightness(args):
 	f.close()
 
 def _sound(args):
-#	os.system("amixer -c 0 set Master 100% unmute")
-	os.system("ponymix set-volume %s"%args[0])
+	os.system("amixer -c 0 set PCM 100% unmute")
+        os.system("amixer -c 0 set PCM %s%%"%args[0])
+#	os.system("ponymix set-volume %s"%args[0])
 
 
 
@@ -73,7 +75,10 @@ def _serve(args):
 	else:
 		print ("usage: [address] [port]")
 	if port:
-		os.system("python -m http.server --bind %s %s" %(server,port) )
+		if int(port) < 1024:
+			s="sudo "
+		else:s=''
+		os.system("%spython -m http.server --bind %s %s" %(s,server,port) )
 
 
 aliases['screenclip'] = _screenclip
@@ -91,5 +96,6 @@ aliases['ffmpeg-remix-ts']=_ffmpeg_remix
 #print ("UserID:",os.getuid())
 
 if os.getuid() == 0:
+	print ("I am gROOT!")
 	from scapy.all import *
 
